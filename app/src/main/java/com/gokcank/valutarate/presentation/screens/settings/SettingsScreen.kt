@@ -236,7 +236,7 @@ fun SettingsScreen(
                     TextButton(
                         onClick = {
                             val intent = Intent(Intent.ACTION_VIEW).apply {
-                                data = Uri.parse("https://raw.githubusercontent.com/gokcank/RateFlow/master/PRIVACY_POLICY.md")
+                                data = Uri.parse("https://raw.githubusercontent.com/gokcank/ValutaRate/master/PRIVACY_POLICY.md")
                             }
                             context.startActivity(intent)
                         }
