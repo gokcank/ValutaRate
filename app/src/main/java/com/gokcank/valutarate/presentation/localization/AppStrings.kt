@@ -30,7 +30,8 @@ data class AppStrings(
     val about: String,
     val developer: String,
     val reportBug: String,
-    val bugReportSubject: String
+    val bugReportSubject: String,
+    val appVersionLabel: String
 )
 
 val enStrings = AppStrings(
@@ -53,7 +54,8 @@ val enStrings = AppStrings(
     tcmbRatesHeader = "Indicative TCMB Rates determined at 15:30 on",
     errorLoading = "Error loading data",
     reportBug = "Report Bug",
-    bugReportSubject = "BUG REPORT/FEEDBACK"
+    bugReportSubject = "VALUTA RATE BUG REPORT",
+    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)"
 )
 
 val trStrings = AppStrings(
@@ -76,7 +78,8 @@ val trStrings = AppStrings(
     tcmbRatesHeader = "Günü Saat 15:30'da Belirlenen Gösterge Niteliğindeki TCMB Kurları",
     errorLoading = "Kurlar yüklenirken hata oluştu",
     reportBug = "Hata Bildir",
-    bugReportSubject = "HATA BİLDİRİMİ"
+    bugReportSubject = "DÖVİZ ÇEVİRİCİ - VALUTA RATE HATA BİLDİRİMİ",
+    appVersionLabel = "Döviz Çevirici - Valuta Rate v.1.0 (Kapalı Beta)"
 )
 
 val deStrings = AppStrings(
@@ -99,7 +102,8 @@ val deStrings = AppStrings(
     tcmbRatesHeader = "Indikative TCMB-Kurse, ermittelt um 15:30 Uhr am",
     errorLoading = "Fehler beim Laden der Kurse",
     reportBug = "Fehler Melden",
-    bugReportSubject = "BUG REPORT/FEEDBACK"
+    bugReportSubject = "VALUTA RATE BUG REPORT",
+    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)"
 )
 
 val frStrings = AppStrings(
@@ -122,7 +126,8 @@ val frStrings = AppStrings(
     tcmbRatesHeader = "Taux indicatifs de la TCMB déterminés à 15h30 le",
     errorLoading = "Erreur de chargement des taux",
     reportBug = "Signaler un bug",
-    bugReportSubject = "BUG REPORT/FEEDBACK"
+    bugReportSubject = "VALUTA RATE BUG REPORT",
+    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)"
 )
 
 val LocalAppStrings = staticCompositionLocalOf { enStrings }
