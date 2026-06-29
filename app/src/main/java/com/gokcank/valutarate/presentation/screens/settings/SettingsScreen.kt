@@ -232,6 +232,21 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = strings.reportBug)
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextButton(
+                        onClick = {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                data = Uri.parse("https://raw.githubusercontent.com/gokcank/RateFlow/master/PRIVACY_POLICY.md")
+                            }
+                            context.startActivity(intent)
+                        }
+                    ) {
+                        Text(
+                            text = "Gizlilik Politikası / Privacy Policy",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
             

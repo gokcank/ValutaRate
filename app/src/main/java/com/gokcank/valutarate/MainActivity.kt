@@ -23,8 +23,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import com.google.android.gms.ads.MobileAds
+import com.google.android.ump.ConsentRequestParameters
+import com.google.android.ump.UserMessagingPlatform
 import com.gokcank.valutarate.presentation.navigation.Screen
-import com.gokcank.valutarate.ui.theme.RateFlowTheme
+import com.gokcank.valutarate.ui.theme.ValutaRateTheme
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.compose.foundation.layout.Column
 import com.gokcank.valutarate.presentation.ads.AdMobBanner
@@ -55,10 +57,32 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Initialize the Mobile Ads SDK.
-        MobileAds.initialize(this) {}
-        
+        // UMP Consent Flow
+        val consentInformation = UserMessagingPlatform.getConsentInformation(this)
+        val params = ConsentRequestParameters.Builder().build()
+
+        consentInformation.requestConsentInfoUpdate(
+            this,
+            params,
+            {
+                UserMessagingPlatform.loadAndShowConsentFormIfRequired(
+                    this@MainActivity,
+                    { loadAndShowError ->
+                        if (consentInformation.canRequestAds()) {
+                            MobileAds.initialize(this@MainActivity) {}
+                        }
+                    }
+                )
+            },
+            { requestConsentError ->
+                // Consent gathering failed.
+            }
+        )
+
+        // Initialize in parallel if possible
+        if (consentInformation.canRequestAds()) {
+            MobileAds.initialize(this) {}
+        }
         setContent {
             val themePalette by themePreference.themePaletteFlow.collectAsState(initial = ThemePalette.PURPLE)
             val appLanguage by themePreference.appLanguageFlow.collectAsState(initial = AppLanguage.EN)
@@ -71,8 +95,8 @@ class MainActivity : ComponentActivity() {
             }
 
             CompositionLocalProvider(LocalAppStrings provides appStrings) {
-                RateFlowTheme {
-                    RateFlowAppContent(themePalette = themePalette)
+                ValutaRateTheme {
+                    ValutaRateAppContent(themePalette = themePalette)
                 }
             }
         }
@@ -118,7 +142,7 @@ fun BottomNavigationBar(navController: NavController, currentRoute: String?) {
 }
 
 @Composable
-fun RateFlowAppContent(themePalette: ThemePalette = ThemePalette.PURPLE) {
+fun ValutaRateAppContent(themePalette: ThemePalette = ThemePalette.PURPLE) {
     val navController = rememberNavController()
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route
