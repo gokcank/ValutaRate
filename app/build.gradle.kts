@@ -20,6 +20,10 @@ android {
     val admobAppId = properties.getProperty("ADMOB_APP_ID") ?: "ca-app-pub-3940256099942544~3347511713"
     val admobBannerAdUnitId = properties.getProperty("ADMOB_BANNER_AD_UNIT_ID") ?: "ca-app-pub-3940256099942544/6300978111"
     val admobInterstitialAdUnitId = properties.getProperty("ADMOB_INTERSTITIAL_AD_UNIT_ID") ?: "ca-app-pub-3940256099942544/1033173712"
+    
+    val propKeystorePassword = properties.getProperty("KEYSTORE_PASSWORD")
+    val propKeyAlias = properties.getProperty("KEY_ALIAS")
+    val propKeyPassword = properties.getProperty("KEY_PASSWORD")
 
     namespace = "com.gokcank.valutarate"
     compileSdk = 36
@@ -34,10 +38,22 @@ android {
         buildConfigField("String", "ADMOB_INTERSTITIAL_AD_UNIT_ID", "\"$admobInterstitialAdUnitId\"")
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("valuta_rate_keystore.jks")
+            storePassword = propKeystorePassword
+            keyAlias = propKeyAlias
+            keyPassword = propKeyPassword
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (propKeystorePassword != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
