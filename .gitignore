@@ -14,3 +14,8 @@
 .cxx
 local.properties
 scratch_notes.md
+
+# Keystore files — never commit signing keys
+*.jks
+*.keystore
+keystore/
