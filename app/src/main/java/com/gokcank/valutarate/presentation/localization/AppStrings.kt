@@ -10,7 +10,7 @@ enum class AppLanguage(val code: String, val displayName: String) {
 }
 
 data class AppStrings(
-    val appName: String = "RateFlow",
+    val appName: String = "Valuta Rate",
     val tabHome: String,
     val tabConvert: String,
     val tabSettings: String,
@@ -31,7 +31,9 @@ data class AppStrings(
     val developer: String,
     val reportBug: String,
     val bugReportSubject: String,
-    val appVersionLabel: String
+    val appVersionLabel: String,
+    val buying: String,
+    val selling: String
 )
 
 val enStrings = AppStrings(
@@ -55,7 +57,9 @@ val enStrings = AppStrings(
     errorLoading = "Error loading data",
     reportBug = "Report Bug",
     bugReportSubject = "VALUTA RATE BUG REPORT",
-    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)"
+    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)",
+    buying = "Buy",
+    selling = "Sell"
 )
 
 val trStrings = AppStrings(
@@ -79,7 +83,9 @@ val trStrings = AppStrings(
     errorLoading = "Kurlar yüklenirken hata oluştu",
     reportBug = "Hata Bildir",
     bugReportSubject = "DÖVİZ ÇEVİRİCİ - VALUTA RATE HATA BİLDİRİMİ",
-    appVersionLabel = "Döviz Çevirici - Valuta Rate v.1.0 (Kapalı Beta)"
+    appVersionLabel = "Döviz Çevirici - Valuta Rate v.1.0 (Kapalı Beta)",
+    buying = "Alış",
+    selling = "Satış"
 )
 
 val deStrings = AppStrings(
@@ -103,7 +109,9 @@ val deStrings = AppStrings(
     errorLoading = "Fehler beim Laden der Kurse",
     reportBug = "Fehler Melden",
     bugReportSubject = "VALUTA RATE BUG REPORT",
-    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)"
+    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)",
+    buying = "Kauf",
+    selling = "Verkauf"
 )
 
 val frStrings = AppStrings(
@@ -127,7 +135,9 @@ val frStrings = AppStrings(
     errorLoading = "Erreur de chargement des taux",
     reportBug = "Signaler un bug",
     bugReportSubject = "VALUTA RATE BUG REPORT",
-    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)"
+    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)",
+    buying = "Achat",
+    selling = "Vente"
 )
 
 val LocalAppStrings = staticCompositionLocalOf { enStrings }

@@ -111,14 +111,15 @@ fun OfficialRateCard(rate: OfficialRate) {
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
+                val strings = LocalAppStrings.current
                 Text(
-                    text = "Alış: ₺${rate.forexBuying ?: "-"}",
+                    text = "${strings.buying}: ₺${rate.forexBuying ?: "-"}",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
-                    text = "Satış: ₺${rate.forexSelling ?: "-"}",
+                    text = "${strings.selling}: ₺${rate.forexSelling ?: "-"}",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onBackground
