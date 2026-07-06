@@ -52,7 +52,7 @@ class CurrencyRepositoryImpl @Inject constructor(
             val tryCurrency = CurrencyEntity("TRY", "TÜRK LİRASI", false, false)
             currencyDao.insertCurrencies(currencies + tryCurrency)
         } catch (e: Exception) {
-            // Handle error
+            throw e
         }
     }
 
