@@ -40,7 +40,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("valuta_rate_keystore.jks")
+            storeFile = file("valutarate.jks")
             storePassword = propKeystorePassword
             keyAlias = propKeyAlias
             keyPassword = propKeyPassword
