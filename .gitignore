@@ -19,3 +19,6 @@ scratch_notes.md
 *.jks
 *.keystore
 keystore/
+
+# Kotlin build artifacts
+.kotlin/
