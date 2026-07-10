@@ -20,6 +20,10 @@ enum class ThemePalette {
     PURPLE, OCEAN, FOREST, SUNSET, VICE_CITY
 }
 
+enum class AppTheme {
+    SYSTEM, LIGHT, DARK
+}
+
 @Singleton
 class ThemePreference @Inject constructor(
     @ApplicationContext private val context: Context
@@ -33,6 +37,16 @@ class ThemePreference @Inject constructor(
             ThemePalette.valueOf(themeName)
         } catch (e: Exception) {
             ThemePalette.PURPLE
+        }
+    }
+
+    private val APP_THEME_KEY = stringPreferencesKey("app_theme")
+    val appThemeFlow: Flow<AppTheme> = context.dataStore.data.map { preferences ->
+        val themeName = preferences[APP_THEME_KEY] ?: AppTheme.SYSTEM.name
+        try {
+            AppTheme.valueOf(themeName)
+        } catch (e: Exception) {
+            AppTheme.SYSTEM
         }
     }
 
@@ -54,6 +68,12 @@ class ThemePreference @Inject constructor(
     suspend fun saveAppLanguage(language: AppLanguage) {
         context.dataStore.edit { preferences ->
             preferences[LANG_KEY] = language.name
+        }
+    }
+
+    suspend fun saveAppTheme(theme: AppTheme) {
+        context.dataStore.edit { preferences ->
+            preferences[APP_THEME_KEY] = theme.name
         }
     }
 }

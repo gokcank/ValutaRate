@@ -39,6 +39,7 @@ fun SettingsScreen(
 ) {
     val currentTheme by viewModel.currentTheme.collectAsState()
     val currentLanguage by viewModel.currentLanguage.collectAsState()
+    val currentAppTheme by viewModel.currentAppTheme.collectAsState()
     
     val context = LocalContext.current
     val strings = LocalAppStrings.current
@@ -65,12 +66,61 @@ fun SettingsScreen(
         ) {
             // Removed top header
 
+            // App Theme Selector (Light/Dark/System)
+            Text(
+                text = "Görünüm Modu / Appearance Mode",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(bottom = 0.dp)
+            )
+
+            GlassCard(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    com.gokcank.valutarate.data.preferences.AppTheme.values().forEach { theme ->
+                        val isSelected = currentAppTheme == theme
+                        val displayName = when (theme) {
+                            com.gokcank.valutarate.data.preferences.AppTheme.SYSTEM -> "Sistem"
+                            com.gokcank.valutarate.data.preferences.AppTheme.LIGHT -> "Açık"
+                            com.gokcank.valutarate.data.preferences.AppTheme.DARK -> "Koyu"
+                        }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(
+                                    if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                    else Color.Transparent
+                                )
+                                .border(
+                                    width = 1.dp,
+                                    color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White.copy(alpha = 0.2f),
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .clickable { viewModel.changeAppTheme(theme) }
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = displayName,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                }
+            }
+            
             // Theme Selector
             Text(
                 text = strings.themePalette,
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.padding(bottom = 0.dp)
+                modifier = Modifier.padding(top = 8.dp)
             )
 
             Row(
@@ -192,7 +242,7 @@ fun SettingsScreen(
 
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
@@ -207,12 +257,14 @@ fun SettingsScreen(
                         text = strings.appVersionLabel,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onBackground,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                     Text(
                         text = "${strings.developer}: gokcank",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     OutlinedButton(
@@ -230,7 +282,10 @@ fun SettingsScreen(
                     ) {
                         Icon(Icons.Default.Email, contentDescription = "Email", modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = strings.reportBug)
+                        Text(
+                            text = strings.reportBug,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(
@@ -244,7 +299,8 @@ fun SettingsScreen(
                         Text(
                             text = "Gizlilik Politikası / Privacy Policy",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                     }
                 }

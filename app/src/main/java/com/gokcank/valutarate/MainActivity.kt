@@ -86,6 +86,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             val themePalette by themePreference.themePaletteFlow.collectAsState(initial = ThemePalette.PURPLE)
             val appLanguage by themePreference.appLanguageFlow.collectAsState(initial = AppLanguage.EN)
+            val appTheme by themePreference.appThemeFlow.collectAsState(initial = com.gokcank.valutarate.data.preferences.AppTheme.SYSTEM)
+            
+            val isDarkTheme = when (appTheme) {
+                com.gokcank.valutarate.data.preferences.AppTheme.DARK -> true
+                com.gokcank.valutarate.data.preferences.AppTheme.LIGHT -> false
+                com.gokcank.valutarate.data.preferences.AppTheme.SYSTEM -> androidx.compose.foundation.isSystemInDarkTheme()
+            }
             
             val appStrings = when (appLanguage) {
                 AppLanguage.TR -> trStrings
@@ -95,8 +102,8 @@ class MainActivity : ComponentActivity() {
             }
 
             CompositionLocalProvider(LocalAppStrings provides appStrings) {
-                ValutaRateTheme {
-                    ValutaRateAppContent(themePalette = themePalette)
+                ValutaRateTheme(darkTheme = isDarkTheme) {
+                    ValutaRateAppContent(themePalette = themePalette, isDarkTheme = isDarkTheme)
                 }
             }
         }
@@ -142,13 +149,13 @@ fun BottomNavigationBar(navController: NavController, currentRoute: String?) {
 }
 
 @Composable
-fun ValutaRateAppContent(themePalette: ThemePalette = ThemePalette.PURPLE) {
+fun ValutaRateAppContent(themePalette: ThemePalette = ThemePalette.PURPLE, isDarkTheme: Boolean = androidx.compose.foundation.isSystemInDarkTheme()) {
     val navController = rememberNavController()
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route
 
     Box(modifier = Modifier.fillMaxSize()) {
-        com.gokcank.valutarate.presentation.components.MeshBackground(themePalette = themePalette)
+        com.gokcank.valutarate.presentation.components.MeshBackground(themePalette = themePalette, isDarkTheme = isDarkTheme)
         
         Scaffold(
             containerColor = Color.Transparent,

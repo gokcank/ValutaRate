@@ -17,5 +17,8 @@ class GetRatesUseCase @Inject constructor(
             Result.failure(e)
         }
     }
-
+    
+    fun getHistoricalRatesByCode(code: String): kotlinx.coroutines.flow.Flow<List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>> {
+        return repository.getHistoricalRatesByCode(code)
+    }
 }

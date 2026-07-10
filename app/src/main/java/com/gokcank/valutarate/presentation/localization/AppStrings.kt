@@ -10,6 +10,7 @@ enum class AppLanguage(val code: String, val displayName: String) {
 }
 
 data class AppStrings(
+    val languageCode: String,
     val appName: String = "Valuta Rate",
     val tabHome: String,
     val tabConvert: String,
@@ -33,10 +34,14 @@ data class AppStrings(
     val bugReportSubject: String,
     val appVersionLabel: String,
     val buying: String,
-    val selling: String
+    val selling: String,
+    val tabFavorites: String,
+    val tabAll: String,
+    val privacyPolicy: String
 )
 
 val enStrings = AppStrings(
+    languageCode = "en",
     tabHome = "Home",
     tabConvert = "Convert",
     tabSettings = "Settings",
@@ -57,12 +62,16 @@ val enStrings = AppStrings(
     errorLoading = "Error loading data",
     reportBug = "Report Bug",
     bugReportSubject = "VALUTA RATE BUG REPORT",
-    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)",
+    appVersionLabel = "Valuta Rate v1.1.0 (Closed Beta)",
     buying = "Buy",
-    selling = "Sell"
+    selling = "Sell",
+    tabFavorites = "Favorites",
+    tabAll = "All",
+    privacyPolicy = "Privacy Policy"
 )
 
 val trStrings = AppStrings(
+    languageCode = "tr",
     tabHome = "Ana Sayfa",
     tabConvert = "Çevirici",
     tabSettings = "Ayarlar",
@@ -83,12 +92,16 @@ val trStrings = AppStrings(
     errorLoading = "Kurlar yüklenirken hata oluştu",
     reportBug = "Hata Bildir",
     bugReportSubject = "DÖVİZ ÇEVİRİCİ - VALUTA RATE HATA BİLDİRİMİ",
-    appVersionLabel = "Döviz Çevirici - Valuta Rate v.1.0 (Kapalı Beta)",
+    appVersionLabel = "Döviz Çevirici - Valuta Rate v1.1.0 (Kapalı Beta)",
     buying = "Alış",
-    selling = "Satış"
+    selling = "Satış",
+    tabFavorites = "Favoriler",
+    tabAll = "Tümü",
+    privacyPolicy = "Gizlilik Politikası"
 )
 
 val deStrings = AppStrings(
+    languageCode = "de",
     tabHome = "Startseite",
     tabConvert = "Umrechner",
     tabSettings = "Einstellungen",
@@ -108,13 +121,17 @@ val deStrings = AppStrings(
     tcmbRatesHeader = "Indikative TCMB-Kurse, ermittelt um 15:30 Uhr am",
     errorLoading = "Fehler beim Laden der Kurse",
     reportBug = "Fehler Melden",
-    bugReportSubject = "VALUTA RATE BUG REPORT",
-    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)",
+    bugReportSubject = "VALUTA RATE FEHLERBERICHT",
+    appVersionLabel = "Valuta Rate v1.1.0 (Geschlossene Beta)",
     buying = "Kauf",
-    selling = "Verkauf"
+    selling = "Verkauf",
+    tabFavorites = "Favoriten",
+    tabAll = "Alle",
+    privacyPolicy = "Datenschutzerklärung"
 )
 
 val frStrings = AppStrings(
+    languageCode = "fr",
     tabHome = "Accueil",
     tabConvert = "Convertisseur",
     tabSettings = "Paramètres",
@@ -134,10 +151,13 @@ val frStrings = AppStrings(
     tcmbRatesHeader = "Taux indicatifs de la TCMB déterminés à 15h30 le",
     errorLoading = "Erreur de chargement des taux",
     reportBug = "Signaler un bug",
-    bugReportSubject = "VALUTA RATE BUG REPORT",
-    appVersionLabel = "Valuta Rate v1.0 (Closed Beta)",
+    bugReportSubject = "RAPPORT DE BUG VALUTA RATE",
+    appVersionLabel = "Valuta Rate v1.1.0 (Bêta Fermée)",
     buying = "Achat",
-    selling = "Vente"
+    selling = "Vente",
+    tabFavorites = "Favoris",
+    tabAll = "Tous",
+    privacyPolicy = "Politique de confidentialité"
 )
 
 val LocalAppStrings = staticCompositionLocalOf { enStrings }

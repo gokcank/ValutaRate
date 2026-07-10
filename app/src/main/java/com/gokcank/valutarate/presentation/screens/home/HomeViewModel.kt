@@ -23,6 +23,11 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    private val _selectedCurrencyHistory = MutableStateFlow<List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>?>(null)
+    val selectedCurrencyHistory: StateFlow<List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>?> = _selectedCurrencyHistory.asStateFlow()
+
+    private var historyJob: kotlinx.coroutines.Job? = null
+
     init {
         loadData()
     }
@@ -39,10 +44,49 @@ class HomeViewModel @Inject constructor(
                     officialRates = officialRatesResult.rates,
                     tcmbDate = officialRatesResult.date
                 )
+                
+                // Collect favorite currencies to update the state
+                launch {
+                    getCurrenciesUseCase.getAllCurrencies().collect { currencies ->
+                        val currentState = _uiState.value
+                        if (currentState is HomeUiState.Success) {
+                            _uiState.value = currentState.copy(favoriteCurrencies = currencies)
+                        }
+                    }
+                }
+                
+                // Sync currencies in background so ConverterScreen has data
+                launch {
+                    try {
+                        getCurrenciesUseCase.syncCurrencies()
+                    } catch (e: Exception) {
+                        // ignore
+                    }
+                }
             }.onFailure { error ->
                 _uiState.value = HomeUiState.Error(error.message ?: "An error occurred")
             }
         }
+    }
+
+    fun toggleFavorite(code: String, isFavorite: Boolean) {
+        viewModelScope.launch {
+            getCurrenciesUseCase.toggleFavorite(code, isFavorite)
+        }
+    }
+
+    fun selectCurrencyForHistory(code: String) {
+        historyJob?.cancel()
+        historyJob = viewModelScope.launch {
+            getRatesUseCase.getHistoricalRatesByCode(code).collect { history ->
+                _selectedCurrencyHistory.value = history
+            }
+        }
+    }
+
+    fun clearSelectedCurrency() {
+        historyJob?.cancel()
+        _selectedCurrencyHistory.value = null
     }
 }
 

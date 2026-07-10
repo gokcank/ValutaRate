@@ -7,13 +7,15 @@ import com.gokcank.valutarate.data.local.dao.RateDao
 import com.gokcank.valutarate.data.local.entity.CurrencyEntity
 
 import com.gokcank.valutarate.data.local.entity.OfficialRateEntity
+import com.gokcank.valutarate.data.local.entity.HistoricalRateEntity
 
 @Database(
     entities = [
         CurrencyEntity::class,
-        OfficialRateEntity::class
+        OfficialRateEntity::class,
+        HistoricalRateEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

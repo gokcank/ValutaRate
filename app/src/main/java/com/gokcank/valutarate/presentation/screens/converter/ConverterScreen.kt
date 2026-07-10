@@ -9,6 +9,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,9 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.gokcank.valutarate.presentation.components.GlassCard
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.graphics.Color
 import com.gokcank.valutarate.presentation.localization.LocalAppStrings
+import com.gokcank.valutarate.domain.util.CurrencyUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,11 +35,12 @@ fun ConverterScreen(
     val uiState by viewModel.uiState.collectAsState()
     val amount by viewModel.amount.collectAsState()
     val fromCurrency by viewModel.fromCurrency.collectAsState()
-    val toCurrency by viewModel.toCurrency.collectAsState()
     val availableCurrencies by viewModel.availableCurrencies.collectAsState()
 
     val context = LocalContext.current
     val strings = LocalAppStrings.current
+
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -52,32 +58,13 @@ fun ConverterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (uiState is ConverterUiState.Success) {
-                val state = uiState as ConverterUiState.Success
-                val sourceText = if (state.result.isOfficialRate) {
-                    strings.usingTcmbOfficial
-                } else {
-                    strings.usingGlobalLive
-                }
-                
-                GlassCard(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = sourceText,
-                        modifier = Modifier.padding(12.dp).align(Alignment.Center),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            GlassCard(
+            // Input Card
+            com.gokcank.valutarate.presentation.components.GlassCard(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
@@ -93,89 +80,128 @@ fun ConverterScreen(
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CurrencyDropdown(
-                            label = strings.from,
-                            selectedCurrency = fromCurrency,
-                            currencies = availableCurrencies.map { it.code },
-                            onCurrencySelected = { viewModel.updateFromCurrency(it) },
-                            modifier = Modifier.weight(1f)
-                        )
-                        
-                        IconButton(onClick = { viewModel.swapCurrencies() }) {
-                            Icon(Icons.Default.SwapVert, contentDescription = "Swap")
-                        }
-
-                        CurrencyDropdown(
-                            label = strings.to,
-                            selectedCurrency = toCurrency,
-                            currencies = availableCurrencies.map { it.code },
-                            onCurrencySelected = { viewModel.updateToCurrency(it) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                    CurrencyDropdown(
+                        label = strings.from,
+                        selectedCurrency = fromCurrency,
+                        currencies = availableCurrencies.map { it.code },
+                        onCurrencySelected = { viewModel.updateFromCurrency(it) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Tabs for Favorites and All
+            TabRow(
+                selectedTabIndex = selectedTabIndex,
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
+                divider = {} // Remove default divider
+            ) {
+                Tab(
+                    selected = selectedTabIndex == 0,
+                    onClick = { selectedTabIndex = 0 },
+                    text = { Text(strings.tabAll) }
+                )
+                Tab(
+                    selected = selectedTabIndex == 1,
+                    onClick = { selectedTabIndex = 1 },
+                    text = { Text(strings.tabFavorites) }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Output List
             when (val state = uiState) {
                 is ConverterUiState.Loading -> {
-                    CircularProgressIndicator()
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
                 is ConverterUiState.Error -> {
-                    Text(
-                        text = state.message,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = state.message,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
                 is ConverterUiState.Success -> {
-                    GlassCard(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                    // Filter results based on selected tab
+                    val favoritesCodes = availableCurrencies.filter { it.isFavorite }.map { it.code }
+                    
+                    val filteredResults = if (selectedTabIndex == 1) {
+                        state.results.filter { favoritesCodes.contains(it.toCurrency) }
+                    } else {
+                        state.results
+                    }
+
+                    if (filteredResults.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = if (selectedTabIndex == 1) "No favorites selected." else "No conversions available.",
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                            )
+                        }
+                    } else {
+                        androidx.compose.foundation.lazy.LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(0.dp),
+                            contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp),
+                            modifier = Modifier.fillMaxSize()
                         ) {
-                            Text(
-                                text = strings.convertedAmount,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "${String.format("%.2f", state.result.result)} ${state.result.toCurrency}",
-                                style = MaterialTheme.typography.displaySmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "1 ${state.result.fromCurrency} = ${String.format("%.4f", state.result.rateUsed)} ${state.result.toCurrency}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
-                            )
+                            itemsIndexed(filteredResults) { index, result ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = CurrencyUtils.getCurrencyFlag(result.toCurrency),
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Text(
+                                            text = result.toCurrency,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onBackground
+                                        )
+                                    }
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = "${String.format("%.2f", result.result)} ${CurrencyUtils.getCurrencySymbol(result.toCurrency)}",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onBackground
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        val isFav = availableCurrencies.find { it.code == result.toCurrency }?.isFavorite == true
+                                        androidx.compose.material3.IconButton(onClick = { viewModel.toggleFavorite(result.toCurrency, !isFav) }) {
+                                            androidx.compose.material3.Icon(
+                                                imageVector = if (isFav) androidx.compose.material.icons.Icons.Default.Star else androidx.compose.material.icons.Icons.Default.StarBorder,
+                                                contentDescription = "Toggle Favorite",
+                                                tint = if (isFav) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                                            )
+                                        }
+                                    }
+                                }
+                                if (index < filteredResults.size - 1) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(horizontal = 16.dp),
+                                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f)
+                                    )
+                                }
+                            }
                         }
                     }
                 }
                 else -> {}
             }
-            
-            Spacer(modifier = Modifier.height(64.dp))
-            
-            // Decorative Background Icon
-            Icon(
-                imageVector = androidx.compose.material.icons.Icons.Default.Refresh,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(120.dp)
-                    .padding(bottom = 32.dp),
-                tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.05f)
-            )
         }
     }
 }

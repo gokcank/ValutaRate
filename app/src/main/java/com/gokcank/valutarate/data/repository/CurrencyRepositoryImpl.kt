@@ -10,6 +10,7 @@ import com.gokcank.valutarate.domain.model.OfficialRate
 import com.gokcank.valutarate.domain.model.OfficialRatesResult
 import com.gokcank.valutarate.domain.repository.CurrencyRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -39,28 +40,40 @@ class CurrencyRepositoryImpl @Inject constructor(
 
     override suspend fun syncCurrencies() = withContext(Dispatchers.IO) {
         try {
-            val response = tcmbService.getTodayRates()
-            val currencies = response.currencies.map { tcmbRate ->
-                CurrencyEntity(
-                    code = tcmbRate.code,
-                    name = tcmbRate.name,
-                    isFavorite = false,
-                    isCrypto = false
-                )
+            val cachedRates = rateDao.getOfficialRates()
+            val currenciesToInsert = if (cachedRates.isNotEmpty()) {
+                cachedRates.map {
+                    CurrencyEntity(
+                        code = it.code,
+                        name = it.name,
+                        isFavorite = false,
+                        isCrypto = false
+                    )
+                }
+            } else {
+                val response = tcmbService.getTodayRates()
+                response.currencies.map { tcmbRate ->
+                    CurrencyEntity(
+                        code = tcmbRate.code,
+                        name = tcmbRate.name,
+                        isFavorite = false,
+                        isCrypto = false
+                    )
+                }
             }
+            
             // Add TRY as a base currency
             val tryCurrency = CurrencyEntity("TRY", "TÜRK LİRASI", false, false)
-            currencyDao.insertCurrencies(currencies + tryCurrency)
+            currencyDao.insertCurrencies(currenciesToInsert + tryCurrency)
         } catch (e: Exception) {
             throw e
         }
     }
 
     override suspend fun getOfficialRates(forceRefresh: Boolean): OfficialRatesResult = withContext(Dispatchers.IO) {
-        val cacheValidityMs = 3600 * 1000 // 1 hour
         val cached = rateDao.getOfficialRates()
         
-        if (!forceRefresh && cached.isNotEmpty() && (System.currentTimeMillis() - cached.first().lastUpdated) < cacheValidityMs) {
+        if (!forceRefresh && cached.isNotEmpty()) {
             val date = cached.first().date
             return@withContext OfficialRatesResult(date, cached.map { it.toDomain() })
         }
@@ -81,6 +94,19 @@ class CurrencyRepositoryImpl @Inject constructor(
                 )
             }
             rateDao.insertOfficialRates(entities)
+            
+            val historicalEntities = entities.mapNotNull {
+                val rate = it.forexBuying ?: return@mapNotNull null
+                com.gokcank.valutarate.data.local.entity.HistoricalRateEntity(
+                    code = it.code,
+                    date = response.date,
+                    rate = rate,
+                    timestamp = System.currentTimeMillis()
+                )
+            }
+            rateDao.insertHistoricalRates(historicalEntities)
+            
+
             OfficialRatesResult(response.date, entities.map { it.toDomain() })
         } catch (e: Exception) {
             if (cached.isNotEmpty()) {
@@ -90,6 +116,10 @@ class CurrencyRepositoryImpl @Inject constructor(
                 throw e
             }
         }
+    }
+
+    override fun getHistoricalRatesByCode(code: String): Flow<List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>> {
+        return rateDao.getHistoricalRatesByCode(code)
     }
 
     private fun OfficialRateEntity.toDomain() = OfficialRate(
@@ -102,4 +132,6 @@ class CurrencyRepositoryImpl @Inject constructor(
         crossRateUSD = crossRateUSD,
         date = date
     )
+
+
 }

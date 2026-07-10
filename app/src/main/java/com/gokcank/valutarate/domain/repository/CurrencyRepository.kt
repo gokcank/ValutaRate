@@ -13,4 +13,5 @@ interface CurrencyRepository {
     suspend fun syncCurrencies()
 
     suspend fun getOfficialRates(forceRefresh: Boolean = false): OfficialRatesResult
+    fun getHistoricalRatesByCode(code: String): Flow<List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>>
 }
