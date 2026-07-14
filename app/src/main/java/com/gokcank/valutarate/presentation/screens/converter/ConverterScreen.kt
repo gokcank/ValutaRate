@@ -40,8 +40,6 @@ fun ConverterScreen(
     val context = LocalContext.current
     val strings = LocalAppStrings.current
 
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-
     Scaffold(
         containerColor = Color.Transparent,
         topBar = {
@@ -91,27 +89,6 @@ fun ConverterScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Tabs for Favorites and All
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.primary,
-                divider = {} // Remove default divider
-            ) {
-                Tab(
-                    selected = selectedTabIndex == 0,
-                    onClick = { selectedTabIndex = 0 },
-                    text = { Text(strings.tabAll) }
-                )
-                Tab(
-                    selected = selectedTabIndex == 1,
-                    onClick = { selectedTabIndex = 1 },
-                    text = { Text(strings.tabFavorites) }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Output List
             when (val state = uiState) {
                 is ConverterUiState.Loading -> {
@@ -128,19 +105,26 @@ fun ConverterScreen(
                     }
                 }
                 is ConverterUiState.Success -> {
-                    // Filter results based on selected tab
                     val favoritesCodes = availableCurrencies.filter { it.isFavorite }.map { it.code }
                     
-                    val filteredResults = if (selectedTabIndex == 1) {
-                        state.results.filter { favoritesCodes.contains(it.toCurrency) }
-                    } else {
-                        state.results
-                    }
+                    val starredResults = state.results.filter { favoritesCodes.contains(it.toCurrency) }
+                        .sortedWith(
+                            compareBy<com.gokcank.valutarate.domain.model.ConversionResult> { CurrencyUtils.getPopularityIndex(it.toCurrency) }
+                                .thenBy { it.toCurrency }
+                        )
+
+                    val nonStarredResults = state.results.filter { !favoritesCodes.contains(it.toCurrency) }
+                        .sortedWith(
+                            compareBy<com.gokcank.valutarate.domain.model.ConversionResult> { CurrencyUtils.getPopularityIndex(it.toCurrency) }
+                                .thenBy { it.toCurrency }
+                        )
+
+                    val filteredResults = starredResults + nonStarredResults
 
                     if (filteredResults.isEmpty()) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Text(
-                                text = if (selectedTabIndex == 1) "No favorites selected." else "No conversions available.",
+                                text = "No conversions available.",
                                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
                             )
                         }

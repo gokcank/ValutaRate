@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -286,6 +288,35 @@ fun SettingsScreen(
                             text = strings.reportBug,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.clickable {
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/gokcank"))
+                                context.startActivity(intent)
+                            }.padding(8.dp)
+                        ) {
+                            Icon(Icons.Default.Code, contentDescription = "GitHub", tint = MaterialTheme.colorScheme.onBackground)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(text = "GitHub", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground)
+                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.clickable {
+                                val lang = if (currentLanguage == AppLanguage.TR) "tr" else "en"
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://gokcank.vercel.app/$lang"))
+                                context.startActivity(intent)
+                            }.padding(8.dp)
+                        ) {
+                            Icon(Icons.Default.Language, contentDescription = "Portfolio", tint = MaterialTheme.colorScheme.onBackground)
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(text = "Portfolio", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onBackground)
+                        }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     TextButton(

@@ -5,6 +5,13 @@ import java.util.Locale
 
 object CurrencyUtils {
     
+    val popularOrder = listOf("USD", "EUR", "GBP", "CHF", "RUB", "SAR", "KWD")
+
+    fun getPopularityIndex(code: String): Int {
+        val index = popularOrder.indexOf(code.uppercase())
+        return if (index != -1) index else Int.MAX_VALUE
+    }
+
     fun getCurrencySymbol(code: String): String {
         return when (code.uppercase()) {
             "USD" -> "$"

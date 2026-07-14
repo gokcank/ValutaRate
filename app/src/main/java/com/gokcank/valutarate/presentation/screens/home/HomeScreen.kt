@@ -87,7 +87,23 @@ fun HomeScreen(
                             }
                         }
 
-                        items(state.officialRates) { rate ->
+                        val starredRates = state.officialRates.filter { rate ->
+                            state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite == true
+                        }.sortedWith(
+                            compareBy<com.gokcank.valutarate.domain.model.OfficialRate> { CurrencyUtils.getPopularityIndex(it.code) }
+                                .thenBy { it.code }
+                        )
+
+                        val nonStarredRates = state.officialRates.filter { rate ->
+                            state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite != true
+                        }.sortedWith(
+                            compareBy<com.gokcank.valutarate.domain.model.OfficialRate> { CurrencyUtils.getPopularityIndex(it.code) }
+                                .thenBy { it.code }
+                        )
+
+                        val sortedRates = starredRates + nonStarredRates
+
+                        items(sortedRates) { rate ->
                             val isFav = state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite == true
                             OfficialRateCard(
                                 rate = rate,
