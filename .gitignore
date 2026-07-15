@@ -22,3 +22,12 @@ keystore/
 
 # Kotlin build artifacts
 .kotlin/
+
+# IDE & AI Agent folders
+.vscode/
+.gemini/
+.claude/
+
+# Conversation logs
+ValutaRate\ Konuşma\ Geçmişi.md
+
