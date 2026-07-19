@@ -17,7 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ConverterViewModel @Inject constructor(
     private val convertCurrencyUseCase: ConvertCurrencyUseCase,
-    private val getCurrenciesUseCase: GetCurrenciesUseCase
+    private val getCurrenciesUseCase: GetCurrenciesUseCase,
+    private val getRatesUseCase: com.gokcank.valutarate.domain.usecase.GetRatesUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ConverterUiState>(ConverterUiState.Idle)
@@ -32,6 +33,9 @@ class ConverterViewModel @Inject constructor(
     private val _availableCurrencies = MutableStateFlow<List<Currency>>(emptyList())
     val availableCurrencies: StateFlow<List<Currency>> = _availableCurrencies.asStateFlow()
 
+    private var _lastUpdated = 0L
+    private var _isOffline = false
+
     init {
         loadCurrencies()
         convert()
@@ -44,6 +48,13 @@ class ConverterViewModel @Inject constructor(
                 getCurrenciesUseCase.syncCurrencies()
             } catch (e: Exception) {
                 // ignore, use cached
+            }
+            
+            try {
+                val rateResult = getRatesUseCase.getOfficialRates(false)
+                _lastUpdated = rateResult.getOrNull()?.rates?.firstOrNull()?.lastUpdated ?: 0L
+                _isOffline = rateResult.getOrNull()?.isFromCache ?: false
+            } catch (e: Exception) {
             }
             getCurrenciesUseCase.getAllCurrencies().collect { list ->
                 // Sort to have TRY, USD, EUR at top if desired, or just alphabetical
@@ -98,7 +109,7 @@ class ConverterViewModel @Inject constructor(
             if (results.isEmpty() && allCurrencies.size > 1) {
                 _uiState.value = ConverterUiState.Error("Çeviri yapılamadı.")
             } else {
-                _uiState.value = ConverterUiState.Success(results.sortedBy { it.toCurrency })
+                _uiState.value = ConverterUiState.Success(results.sortedBy { it.toCurrency }, _lastUpdated, _isOffline)
             }
         }
     }
@@ -113,6 +124,10 @@ class ConverterViewModel @Inject constructor(
 sealed interface ConverterUiState {
     object Idle : ConverterUiState
     object Loading : ConverterUiState
-    data class Success(val results: List<ConversionResult>) : ConverterUiState
+    data class Success(
+        val results: List<ConversionResult>,
+        val lastUpdated: Long = 0L,
+        val isOffline: Boolean = false
+    ) : ConverterUiState
     data class Error(val message: String) : ConverterUiState
 }

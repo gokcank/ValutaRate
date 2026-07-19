@@ -37,7 +37,11 @@ data class AppStrings(
     val selling: String,
     val tabFavorites: String,
     val tabAll: String,
-    val privacyPolicy: String
+    val privacyPolicy: String,
+    val offlinePrefix: String,
+    val timeUntilUpdate: String,
+    val shareTitle: String,
+    val isEqualTo: String
 )
 
 val enStrings = AppStrings(
@@ -58,16 +62,20 @@ val enStrings = AppStrings(
     language = "Language",
     about = "About",
     developer = "Developer",
-    tcmbRatesHeader = "Indicative TCMB Rates determined at 15:30 on",
+    tcmbRatesHeader = "Indicative TCMB Rates determined at 15:30 on {date}",
     errorLoading = "Error loading data",
     reportBug = "Report Bug",
     bugReportSubject = "VALUTA RATE BUG REPORT",
-    appVersionLabel = "Valuta Rate v1.1.1 (Closed Beta)",
+    appVersionLabel = "Valuta Rate v1.2.0",
     buying = "Buy",
     selling = "Sell",
     tabFavorites = "Favorites",
     tabAll = "All",
-    privacyPolicy = "Privacy Policy"
+    privacyPolicy = "Privacy Policy",
+    offlinePrefix = "Offline - ",
+    timeUntilUpdate = "Time until update: ",
+    shareTitle = "Share Exchange Rates",
+    isEqualTo = "is equal to:"
 )
 
 val trStrings = AppStrings(
@@ -88,16 +96,20 @@ val trStrings = AppStrings(
     language = "Dil",
     about = "Hakkında",
     developer = "Geliştirici",
-    tcmbRatesHeader = "Günü Saat 15:30'da Belirlenen Gösterge Niteliğindeki TCMB Kurları",
+    tcmbRatesHeader = "{date} Tarihinde Saat 15:30'da Belirlenen Gösterge Niteliğindeki TCMB Kurları",
     errorLoading = "Kurlar yüklenirken hata oluştu",
     reportBug = "Hata Bildir",
     bugReportSubject = "DÖVİZ ÇEVİRİCİ - VALUTA RATE HATA BİLDİRİMİ",
-    appVersionLabel = "Döviz Çevirici - Valuta Rate v1.1.1 (Kapalı Beta)",
+    appVersionLabel = "Döviz Çevirici - Valuta Rate v1.2.0",
     buying = "Alış",
     selling = "Satış",
     tabFavorites = "Favoriler",
     tabAll = "Tümü",
-    privacyPolicy = "Gizlilik Politikası"
+    privacyPolicy = "Gizlilik Politikası",
+    offlinePrefix = "Çevrimdışı - ",
+    timeUntilUpdate = "Güncellemeye Kalan: ",
+    shareTitle = "Kurları Paylaş",
+    isEqualTo = "eşittir:"
 )
 
 val deStrings = AppStrings(
@@ -118,16 +130,20 @@ val deStrings = AppStrings(
     language = "Sprache",
     about = "Über",
     developer = "Entwickler",
-    tcmbRatesHeader = "Indikative TCMB-Kurse, ermittelt um 15:30 Uhr am",
+    tcmbRatesHeader = "Indikative TCMB-Kurse, ermittelt um 15:30 Uhr am {date}",
     errorLoading = "Fehler beim Laden der Kurse",
     reportBug = "Fehler Melden",
     bugReportSubject = "VALUTA RATE FEHLERBERICHT",
-    appVersionLabel = "Valuta Rate v1.1.1 (Geschlossene Beta)",
+    appVersionLabel = "Valuta Rate v1.2.0",
     buying = "Kauf",
     selling = "Verkauf",
     tabFavorites = "Favoriten",
     tabAll = "Alle",
-    privacyPolicy = "Datenschutzerklärung"
+    privacyPolicy = "Datenschutzerklärung",
+    offlinePrefix = "Offline - ",
+    timeUntilUpdate = "Zeit bis zum Update: ",
+    shareTitle = "Wechselkurse teilen",
+    isEqualTo = "entspricht:"
 )
 
 val frStrings = AppStrings(
@@ -148,16 +164,20 @@ val frStrings = AppStrings(
     language = "Langue",
     about = "À propos",
     developer = "Développeur",
-    tcmbRatesHeader = "Taux indicatifs de la TCMB déterminés à 15h30 le",
+    tcmbRatesHeader = "Taux indicatifs de la TCMB déterminés à 15h30 le {date}",
     errorLoading = "Erreur de chargement des taux",
     reportBug = "Signaler un bug",
     bugReportSubject = "RAPPORT DE BUG VALUTA RATE",
-    appVersionLabel = "Valuta Rate v1.1.1 (Bêta Fermée)",
+    appVersionLabel = "Valuta Rate v1.2.0",
     buying = "Achat",
     selling = "Vente",
     tabFavorites = "Favoris",
     tabAll = "Tous",
-    privacyPolicy = "Politique de confidentialité"
+    privacyPolicy = "Politique de confidentialité",
+    offlinePrefix = "Hors ligne - ",
+    timeUntilUpdate = "Temps avant la mise à jour : ",
+    shareTitle = "Partager les taux de change",
+    isEqualTo = "est égal à :"
 )
 
 val LocalAppStrings = staticCompositionLocalOf { enStrings }

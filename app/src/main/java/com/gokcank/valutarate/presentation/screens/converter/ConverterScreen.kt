@@ -26,6 +26,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.ui.graphics.Color
 import com.gokcank.valutarate.presentation.localization.LocalAppStrings
 import com.gokcank.valutarate.domain.util.CurrencyUtils
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.gokcank.valutarate.presentation.components.shimmerEffect
+import androidx.compose.ui.draw.clip
+import androidx.compose.material.icons.filled.Share
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,12 +44,32 @@ fun ConverterScreen(
 
     val context = LocalContext.current
     val strings = LocalAppStrings.current
+    val haptic = LocalHapticFeedback.current
 
     Scaffold(
         containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = { Text(strings.tabConvert, fontWeight = FontWeight.Bold) },
+                actions = {
+                    IconButton(onClick = { 
+                        val amountVal = amount.toDoubleOrNull() ?: 1.0
+                        if (uiState is ConverterUiState.Success) {
+                            val results = (uiState as ConverterUiState.Success).results
+                            com.gokcank.valutarate.presentation.components.ImageShareUtils.shareImage(
+                                context = context,
+                                amount = amountVal,
+                                fromCurrency = fromCurrency,
+                                results = results,
+                                shareTitle = strings.shareTitle,
+                                isEqualTo = strings.isEqualTo,
+                                languageCode = strings.languageCode
+                            )
+                        }
+                    }) {
+                        Icon(Icons.Default.Share, contentDescription = "Share", tint = MaterialTheme.colorScheme.onBackground)
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
@@ -92,8 +117,36 @@ fun ConverterScreen(
             // Output List
             when (val state = uiState) {
                 is ConverterUiState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.spacedBy(0.dp)
+                    ) {
+                        for (i in 0..5) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp)).shimmerEffect())
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Box(modifier = Modifier.width(48.dp).height(20.dp).clip(RoundedCornerShape(4.dp)).shimmerEffect())
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(modifier = Modifier.width(80.dp).height(20.dp).clip(RoundedCornerShape(4.dp)).shimmerEffect())
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Box(modifier = Modifier.size(24.dp).clip(RoundedCornerShape(4.dp)).shimmerEffect())
+                                }
+                            }
+                            if (i < 5) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f)
+                                )
+                            }
+                        }
                     }
                 }
                 is ConverterUiState.Error -> {
@@ -134,6 +187,13 @@ fun ConverterScreen(
                             contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
+                            item {
+                                com.gokcank.valutarate.presentation.screens.home.CompactOfflineBanner(
+                                    lastUpdated = state.lastUpdated,
+                                    isOffline = state.isOffline
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
                             itemsIndexed(filteredResults) { index, result ->
                                 Row(
                                     modifier = Modifier
@@ -164,7 +224,10 @@ fun ConverterScreen(
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
                                         val isFav = availableCurrencies.find { it.code == result.toCurrency }?.isFavorite == true
-                                        androidx.compose.material3.IconButton(onClick = { viewModel.toggleFavorite(result.toCurrency, !isFav) }) {
+                                        androidx.compose.material3.IconButton(onClick = { 
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                            viewModel.toggleFavorite(result.toCurrency, !isFav) 
+                                        }) {
                                             androidx.compose.material3.Icon(
                                                 imageVector = if (isFav) androidx.compose.material.icons.Icons.Default.Star else androidx.compose.material.icons.Icons.Default.StarBorder,
                                                 contentDescription = "Toggle Favorite",

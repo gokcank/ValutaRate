@@ -75,11 +75,12 @@ class CurrencyRepositoryImpl @Inject constructor(
         
         if (!forceRefresh && cached.isNotEmpty()) {
             val date = cached.first().date
-            return@withContext OfficialRatesResult(date, cached.map { it.toDomain() })
+            return@withContext OfficialRatesResult(date, cached.map { it.toDomain() }, isFromCache = com.gokcank.valutarate.domain.util.CurrencyUtils.isAppOffline)
         }
 
         try {
             val response = tcmbService.getTodayRates()
+            com.gokcank.valutarate.domain.util.CurrencyUtils.isAppOffline = false
             val entities = response.currencies.map {
                 OfficialRateEntity(
                     code = it.code,
@@ -107,11 +108,12 @@ class CurrencyRepositoryImpl @Inject constructor(
             rateDao.insertHistoricalRates(historicalEntities)
             
 
-            OfficialRatesResult(response.date, entities.map { it.toDomain() })
+            OfficialRatesResult(response.date, entities.map { it.toDomain() }, isFromCache = false)
         } catch (e: Exception) {
+            com.gokcank.valutarate.domain.util.CurrencyUtils.isAppOffline = true
             if (cached.isNotEmpty()) {
                 val date = cached.first().date
-                OfficialRatesResult(date, cached.map { it.toDomain() })
+                OfficialRatesResult(date, cached.map { it.toDomain() }, isFromCache = true)
             } else {
                 throw e
             }
@@ -130,7 +132,8 @@ class CurrencyRepositoryImpl @Inject constructor(
         banknoteBuying = banknoteBuying,
         banknoteSelling = banknoteSelling,
         crossRateUSD = crossRateUSD,
-        date = date
+        date = date,
+        lastUpdated = lastUpdated
     )
 
 

@@ -15,7 +15,12 @@ fun AdMobBanner(modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth(),
         factory = { context ->
             AdView(context).apply {
-                setAdSize(AdSize.BANNER)
+                val displayMetrics = context.resources.displayMetrics
+                val widthPixels = displayMetrics.widthPixels
+                val density = displayMetrics.density
+                val adWidth = (widthPixels / density).toInt()
+                
+                setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth))
                 // Use a test ad unit ID to avoid clicking your own ads and getting banned
                 adUnitId = BuildConfig.ADMOB_BANNER_AD_UNIT_ID
                 loadAd(AdRequest.Builder().build())

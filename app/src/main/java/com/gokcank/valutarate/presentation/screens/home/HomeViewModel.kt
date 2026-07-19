@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
     private var historyJob: kotlinx.coroutines.Job? = null
 
     init {
-        loadData()
+        loadData(forceRefresh = true)
     }
 
     fun loadData(forceRefresh: Boolean = false) {
@@ -42,7 +42,9 @@ class HomeViewModel @Inject constructor(
             result.onSuccess { officialRatesResult ->
                 _uiState.value = HomeUiState.Success(
                     officialRates = officialRatesResult.rates,
-                    tcmbDate = officialRatesResult.date
+                    tcmbDate = officialRatesResult.date,
+                    isFromCache = officialRatesResult.isFromCache,
+                    lastUpdated = officialRatesResult.rates.firstOrNull()?.lastUpdated ?: 0L
                 )
                 
                 // Collect favorite currencies to update the state
@@ -95,7 +97,9 @@ sealed interface HomeUiState {
     data class Success(
         val officialRates: List<OfficialRate>,
         val tcmbDate: String,
-        val favoriteCurrencies: List<Currency> = emptyList()
+        val favoriteCurrencies: List<Currency> = emptyList(),
+        val isFromCache: Boolean = false,
+        val lastUpdated: Long = 0L
     ) : HomeUiState
     data class Error(val message: String) : HomeUiState
 }

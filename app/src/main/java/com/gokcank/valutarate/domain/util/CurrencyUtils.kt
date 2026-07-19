@@ -4,6 +4,7 @@ import java.util.Currency
 import java.util.Locale
 
 object CurrencyUtils {
+    var isAppOffline = false
     
     val popularOrder = listOf("USD", "EUR", "GBP", "CHF", "RUB", "SAR", "KWD")
 
@@ -117,5 +118,21 @@ object CurrencyUtils {
         } catch (e: Exception) {
             code
         }
+    }
+
+    fun getNextTcmbUpdateTimeMillis(): Long {
+        val istZone = java.time.ZoneId.of("Europe/Istanbul")
+        val now = java.time.ZonedDateTime.now(istZone)
+        var nextUpdate = now.withHour(15).withMinute(30).withSecond(0).withNano(0)
+
+        if (now.isAfter(nextUpdate)) {
+            nextUpdate = nextUpdate.plusDays(1)
+        }
+
+        while (nextUpdate.dayOfWeek == java.time.DayOfWeek.SATURDAY || nextUpdate.dayOfWeek == java.time.DayOfWeek.SUNDAY) {
+            nextUpdate = nextUpdate.plusDays(1)
+        }
+
+        return nextUpdate.toInstant().toEpochMilli()
     }
 }

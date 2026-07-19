@@ -15,12 +15,14 @@ data class OfficialRate(
     val banknoteBuying: Double?,
     val banknoteSelling: Double?,
     val crossRateUSD: Double?,
-    val date: String
+    val date: String,
+    val lastUpdated: Long = 0L
 )
 
 data class OfficialRatesResult(
     val date: String,
-    val rates: List<OfficialRate>
+    val rates: List<OfficialRate>,
+    val isFromCache: Boolean = false
 )
 
 data class GlobalRate(

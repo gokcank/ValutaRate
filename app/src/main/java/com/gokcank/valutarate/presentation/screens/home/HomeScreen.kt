@@ -28,6 +28,10 @@ import com.gokcank.valutarate.presentation.localization.LocalAppStrings
 import com.gokcank.valutarate.domain.util.CurrencyUtils
 import com.gokcank.valutarate.presentation.components.LineChart
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import com.gokcank.valutarate.presentation.components.shimmerEffect
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,6 +43,7 @@ fun HomeScreen(
     val selectedHistory by viewModel.selectedCurrencyHistory.collectAsState()
     var selectedRate by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<OfficialRate?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val haptic = LocalHapticFeedback.current
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -59,7 +64,18 @@ fun HomeScreen(
         ) {
             when (val state = uiState) {
                 is HomeUiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    LazyColumn(
+                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        item {
+                            ShimmerHeaderCard()
+                        }
+                        items(8) {
+                            ShimmerRateCard()
+                        }
+                    }
                 }
                 is HomeUiState.Error -> {
                     Text(
@@ -75,6 +91,9 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         item {
+                            CompactOfflineBanner(lastUpdated = state.lastUpdated, isOffline = state.isFromCache)
+                        }
+                        item {
                             GlassCard(modifier = Modifier.fillMaxWidth()) {
                                 Row(
                                     modifier = Modifier.padding(16.dp),
@@ -82,7 +101,7 @@ fun HomeScreen(
                                 ) {
                                     Icon(Icons.Default.Info, contentDescription = "Info", tint = MaterialTheme.colorScheme.onBackground)
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("${strings.tcmbRatesHeader} ${state.tcmbDate}", color = MaterialTheme.colorScheme.onBackground)
+                                    Text(strings.tcmbRatesHeader.replace("{date}", state.tcmbDate), color = MaterialTheme.colorScheme.onBackground)
                                 }
                             }
                         }
@@ -108,7 +127,10 @@ fun HomeScreen(
                             OfficialRateCard(
                                 rate = rate,
                                 isFavorite = isFav,
-                                onFavoriteToggle = { viewModel.toggleFavorite(rate.code, !isFav) },
+                                onFavoriteToggle = { 
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    viewModel.toggleFavorite(rate.code, !isFav) 
+                                },
                                 onClick = { 
                                     selectedRate = rate
                                     viewModel.selectCurrencyForHistory(rate.code)
@@ -240,6 +262,132 @@ fun OfficialRateCard(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ShimmerHeaderCard() {
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(24.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .shimmerEffect()
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(20.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .shimmerEffect()
+            )
+        }
+    }
+}
+
+@Composable
+fun ShimmerRateCard() {
+    GlassCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+                Box(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(24.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .shimmerEffect()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .width(180.dp)
+                        .height(16.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .shimmerEffect()
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(horizontalAlignment = Alignment.End) {
+                    Box(
+                        modifier = Modifier
+                            .width(80.dp)
+                            .height(18.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .shimmerEffect()
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .width(80.dp)
+                            .height(18.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .shimmerEffect()
+                    )
+                }
+                Spacer(modifier = Modifier.width(48.dp)) // space for star button
+            }
+        }
+    }
+}
+
+@Composable
+fun CompactOfflineBanner(lastUpdated: Long, isOffline: Boolean = false) {
+    val istZone = java.time.ZoneId.of("Europe/Istanbul")
+    val now = java.time.ZonedDateTime.now(istZone)
+    val isWeekend = now.dayOfWeek == java.time.DayOfWeek.SATURDAY || now.dayOfWeek == java.time.DayOfWeek.SUNDAY
+    if (isWeekend) return
+
+    var timeRemaining by androidx.compose.runtime.remember { 
+        val nextUpdateAttempt = com.gokcank.valutarate.domain.util.CurrencyUtils.getNextTcmbUpdateTimeMillis()
+        androidx.compose.runtime.mutableStateOf(maxOf(0L, nextUpdateAttempt - System.currentTimeMillis())) 
+    }
+
+    androidx.compose.runtime.LaunchedEffect(lastUpdated) {
+        while (timeRemaining > 0) {
+            delay(1000)
+            val nextUpdateAttempt = com.gokcank.valutarate.domain.util.CurrencyUtils.getNextTcmbUpdateTimeMillis()
+            timeRemaining = maxOf(0L, nextUpdateAttempt - System.currentTimeMillis())
+        }
+    }
+
+    val hours = (timeRemaining / (1000 * 60 * 60))
+    val minutes = (timeRemaining / (1000 * 60)) % 60
+    val seconds = (timeRemaining / 1000) % 60
+    
+    val timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    
+    val strings = com.gokcank.valutarate.presentation.localization.LocalAppStrings.current
+    val prefix = if (isOffline) strings.offlinePrefix else ""
+
+    GlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(if (isOffline) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                .padding(vertical = 6.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "${prefix}${strings.timeUntilUpdate}$timeString",
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = if (isOffline) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
