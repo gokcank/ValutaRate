@@ -91,9 +91,6 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         item {
-                            CompactOfflineBanner(lastUpdated = state.lastUpdated, isOffline = state.isFromCache)
-                        }
-                        item {
                             GlassCard(modifier = Modifier.fillMaxWidth()) {
                                 Row(
                                     modifier = Modifier.padding(16.dp),
@@ -101,7 +98,12 @@ fun HomeScreen(
                                 ) {
                                     Icon(Icons.Default.Info, contentDescription = "Info", tint = MaterialTheme.colorScheme.onBackground)
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(strings.tcmbRatesHeader.replace("{date}", state.tcmbDate), color = MaterialTheme.colorScheme.onBackground)
+                                    Text(
+                                        strings.tcmbRatesHeader
+                                            .replace("{date}", state.tcmbDate)
+                                            .replace("{time}", "15:30"),
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
                                 }
                             }
                         }
@@ -342,52 +344,3 @@ fun ShimmerRateCard() {
     }
 }
 
-@Composable
-fun CompactOfflineBanner(lastUpdated: Long, isOffline: Boolean = false) {
-    val istZone = java.time.ZoneId.of("Europe/Istanbul")
-    val now = java.time.ZonedDateTime.now(istZone)
-    val isWeekend = now.dayOfWeek == java.time.DayOfWeek.SATURDAY || now.dayOfWeek == java.time.DayOfWeek.SUNDAY
-    if (isWeekend) return
-
-    var timeRemaining by androidx.compose.runtime.remember { 
-        val nextUpdateAttempt = com.gokcank.valutarate.domain.util.CurrencyUtils.getNextTcmbUpdateTimeMillis()
-        androidx.compose.runtime.mutableStateOf(maxOf(0L, nextUpdateAttempt - System.currentTimeMillis())) 
-    }
-
-    androidx.compose.runtime.LaunchedEffect(lastUpdated) {
-        while (timeRemaining > 0) {
-            delay(1000)
-            val nextUpdateAttempt = com.gokcank.valutarate.domain.util.CurrencyUtils.getNextTcmbUpdateTimeMillis()
-            timeRemaining = maxOf(0L, nextUpdateAttempt - System.currentTimeMillis())
-        }
-    }
-
-    val hours = (timeRemaining / (1000 * 60 * 60))
-    val minutes = (timeRemaining / (1000 * 60)) % 60
-    val seconds = (timeRemaining / 1000) % 60
-    
-    val timeString = String.format("%02d:%02d:%02d", hours, minutes, seconds)
-    
-    val strings = com.gokcank.valutarate.presentation.localization.LocalAppStrings.current
-    val prefix = if (isOffline) strings.offlinePrefix else ""
-
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(if (isOffline) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                .padding(vertical = 6.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "${prefix}${strings.timeUntilUpdate}$timeString",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = if (isOffline) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}

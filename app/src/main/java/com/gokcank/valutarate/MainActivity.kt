@@ -28,6 +28,7 @@ import com.google.android.ump.UserMessagingPlatform
 import com.gokcank.valutarate.presentation.navigation.Screen
 import com.gokcank.valutarate.ui.theme.ValutaRateTheme
 import dagger.hilt.android.AndroidEntryPoint
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import com.gokcank.valutarate.presentation.ads.AdMobBanner
 import androidx.compose.foundation.layout.Box
@@ -57,31 +58,37 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // UMP Consent Flow
-        val consentInformation = UserMessagingPlatform.getConsentInformation(this)
-        val params = ConsentRequestParameters.Builder().build()
+        enableEdgeToEdge()
+        // AdMob is temporarily disabled during account suspension.
+        // Set ENABLE_ADS = true in AdMobBanner.kt to re-enable.
+        val enableAds = false
+        if (enableAds) {
+            // UMP Consent Flow
+            val consentInformation = UserMessagingPlatform.getConsentInformation(this)
+            val params = ConsentRequestParameters.Builder().build()
 
-        consentInformation.requestConsentInfoUpdate(
-            this,
-            params,
-            {
-                UserMessagingPlatform.loadAndShowConsentFormIfRequired(
-                    this@MainActivity,
-                    { loadAndShowError ->
-                        if (consentInformation.canRequestAds()) {
-                            MobileAds.initialize(this@MainActivity) {}
+            consentInformation.requestConsentInfoUpdate(
+                this,
+                params,
+                {
+                    UserMessagingPlatform.loadAndShowConsentFormIfRequired(
+                        this@MainActivity,
+                        { loadAndShowError ->
+                            if (consentInformation.canRequestAds()) {
+                                MobileAds.initialize(this@MainActivity) {}
+                            }
                         }
-                    }
-                )
-            },
-            { requestConsentError ->
-                // Consent gathering failed.
-            }
-        )
+                    )
+                },
+                { requestConsentError ->
+                    // Consent gathering failed.
+                }
+            )
 
-        // Initialize in parallel if possible
-        if (consentInformation.canRequestAds()) {
-            MobileAds.initialize(this) {}
+            // Initialize in parallel if possible
+            if (consentInformation.canRequestAds()) {
+                MobileAds.initialize(this) {}
+            }
         }
         setContent {
             val themePalette by themePreference.themePaletteFlow.collectAsState(initial = ThemePalette.PURPLE)

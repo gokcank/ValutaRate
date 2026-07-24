@@ -31,3 +31,11 @@ keystore/
 # Conversation logs
 ValutaRate\ Konuşma\ Geçmişi.md
 
+# Android binaries
+*.apk
+*.aab
+*.ap_
+
+# Build logs
+*.log
+

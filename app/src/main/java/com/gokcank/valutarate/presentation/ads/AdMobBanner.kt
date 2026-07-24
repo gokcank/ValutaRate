@@ -9,8 +9,16 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 
+/**
+ * Set to true to re-enable AdMob banners after the 29-day suspension ends.
+ * Before re-enabling, ensure all test devices are registered in AdMob console.
+ */
+private const val ENABLE_ADS = false
+
 @Composable
 fun AdMobBanner(modifier: Modifier = Modifier) {
+    if (!ENABLE_ADS) return
+
     AndroidView(
         modifier = modifier.fillMaxWidth(),
         factory = { context ->
@@ -19,9 +27,8 @@ fun AdMobBanner(modifier: Modifier = Modifier) {
                 val widthPixels = displayMetrics.widthPixels
                 val density = displayMetrics.density
                 val adWidth = (widthPixels / density).toInt()
-                
+
                 setAdSize(AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth))
-                // Use a test ad unit ID to avoid clicking your own ads and getting banned
                 adUnitId = BuildConfig.ADMOB_BANNER_AD_UNIT_ID
                 loadAd(AdRequest.Builder().build())
             }

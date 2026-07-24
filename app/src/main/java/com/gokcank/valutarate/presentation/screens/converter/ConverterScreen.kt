@@ -187,13 +187,6 @@ fun ConverterScreen(
                             contentPadding = PaddingValues(top = 8.dp, bottom = 80.dp),
                             modifier = Modifier.fillMaxSize()
                         ) {
-                            item {
-                                com.gokcank.valutarate.presentation.screens.home.CompactOfflineBanner(
-                                    lastUpdated = state.lastUpdated,
-                                    isOffline = state.isOffline
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
                             itemsIndexed(filteredResults) { index, result ->
                                 Row(
                                     modifier = Modifier
