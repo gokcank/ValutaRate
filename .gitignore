@@ -39,3 +39,6 @@ ValutaRate\ Konuşma\ Geçmişi.md
 # Build logs
 *.log
 
+# Store Assets
+store_assets/
+
