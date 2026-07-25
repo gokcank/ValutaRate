@@ -1,3 +1,5 @@
+<div align="center">
+
 # Valuta Rate 💱
 
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
@@ -8,8 +10,10 @@
 ![Version](https://img.shields.io/badge/Version-v1.2.1-blue?style=for-the-badge)
 
 <p align="center">
-  <img src="store_assets/valuta_rate_3screens_showcase.png" width="100%" alt="Valuta Rate Showcase" />
+  <img src="./Reddit_Showcase.png" width="100%" alt="Valuta Rate Showcase" />
 </p>
+
+</div>
 
 Valuta Rate is a modern, premium, and highly dynamic currency converter application built natively for Android. Designed with a stunning **Glassmorphism** UI and fluid animations, Valuta Rate offers a seamless experience for tracking and converting currencies using the official indicative exchange rates provided by the **TCMB (Central Bank of the Republic of Turkey)**.
 
