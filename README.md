@@ -7,7 +7,7 @@
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white)
 ![Material 3](https://img.shields.io/badge/Material_3-757575?style=for-the-badge&logo=materialdesign&logoColor=white)
 ![Room](https://img.shields.io/badge/Room_DB-4285F4?style=for-the-badge&logo=sqlite&logoColor=white)
-![Version](https://img.shields.io/badge/Version-v1.2.1-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-v1.2.2-blue?style=for-the-badge)
 
 <p align="center">
   <img src="./Reddit_Showcase.png" width="100%" alt="Valuta Rate Showcase" />
