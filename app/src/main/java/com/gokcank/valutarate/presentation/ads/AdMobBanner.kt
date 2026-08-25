@@ -10,10 +10,9 @@ import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
 
 /**
- * Set to true to re-enable AdMob banners after the 29-day suspension ends.
- * Before re-enabling, ensure all test devices are registered in AdMob console.
+ * Set to true to re-enable AdMob banners.
  */
-private const val ENABLE_ADS = false
+private const val ENABLE_ADS = true
 
 @Composable
 fun AdMobBanner(modifier: Modifier = Modifier) {

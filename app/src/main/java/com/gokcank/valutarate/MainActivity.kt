@@ -59,9 +59,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        // AdMob is temporarily disabled during account suspension.
-        // Set ENABLE_ADS = true in AdMobBanner.kt to re-enable.
-        val enableAds = false
+        // AdMob Banner and UMP Consent Flow
+        val enableAds = true
         if (enableAds) {
             // UMP Consent Flow
             val consentInformation = UserMessagingPlatform.getConsentInformation(this)
