@@ -244,24 +244,33 @@ fun SettingsScreen(
 
             GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Icon(
-                        imageVector = androidx.compose.material.icons.Icons.Default.Settings,
-                        contentDescription = "Logo",
-                        modifier = Modifier.size(36.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(56.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Language,
+                            contentDescription = "Logo",
+                            modifier = Modifier.size(32.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = strings.appVersionLabel,
+                        text = "${strings.appVersionLabel} v${com.gokcank.valutarate.BuildConfig.VERSION_NAME}",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground,
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "${strings.developer}: gokcank",
                         style = MaterialTheme.typography.bodySmall,
@@ -328,7 +337,7 @@ fun SettingsScreen(
                         }
                     ) {
                         Text(
-                            text = "Gizlilik Politikası / Privacy Policy",
+                            text = strings.privacyPolicy,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center
