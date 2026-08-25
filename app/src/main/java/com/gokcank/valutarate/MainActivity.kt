@@ -175,7 +175,23 @@ fun ValutaRateAppContent(themePalette: ThemePalette = ThemePalette.PURPLE, isDar
             NavHost(
                 navController = navController,
                 startDestination = Screen.Home.route,
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                enterTransition = {
+                    androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(280)) + 
+                    androidx.compose.animation.slideInHorizontally(animationSpec = androidx.compose.animation.core.tween(280)) { fullWidth -> fullWidth / 5 }
+                },
+                exitTransition = {
+                    androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(280)) + 
+                    androidx.compose.animation.slideOutHorizontally(animationSpec = androidx.compose.animation.core.tween(280)) { fullWidth -> -fullWidth / 5 }
+                },
+                popEnterTransition = {
+                    androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(280)) + 
+                    androidx.compose.animation.slideInHorizontally(animationSpec = androidx.compose.animation.core.tween(280)) { fullWidth -> -fullWidth / 5 }
+                },
+                popExitTransition = {
+                    androidx.compose.animation.fadeOut(animationSpec = androidx.compose.animation.core.tween(280)) + 
+                    androidx.compose.animation.slideOutHorizontally(animationSpec = androidx.compose.animation.core.tween(280)) { fullWidth -> fullWidth / 5 }
+                }
             ) {
                 composable(Screen.Home.route) {
                     com.gokcank.valutarate.presentation.screens.home.HomeScreen()

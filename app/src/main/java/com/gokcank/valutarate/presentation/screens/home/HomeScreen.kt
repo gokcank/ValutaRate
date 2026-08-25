@@ -62,82 +62,88 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            when (val state = uiState) {
-                is HomeUiState.Loading -> {
-                    LazyColumn(
-                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        item {
-                            ShimmerHeaderCard()
-                        }
-                        items(8) {
-                            ShimmerRateCard()
-                        }
-                    }
-                }
-                is HomeUiState.Error -> {
-                    Text(
-                        text = strings.errorLoading + ": " + state.message,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-                is HomeUiState.Success -> {
-                    LazyColumn(
-                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        item {
-                            GlassCard(modifier = Modifier.fillMaxWidth()) {
-                                Row(
-                                    modifier = Modifier.padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(Icons.Default.Info, contentDescription = "Info", tint = MaterialTheme.colorScheme.onBackground)
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text(
-                                        strings.tcmbRatesHeader
-                                            .replace("{date}", state.tcmbDate)
-                                            .replace("{time}", "15:30"),
-                                        color = MaterialTheme.colorScheme.onBackground
-                                    )
-                                }
+            androidx.compose.animation.AnimatedContent(
+                targetState = uiState,
+                label = "HomeScreenStateTransition"
+            ) { targetState ->
+                when (val state = targetState) {
+                    is HomeUiState.Loading -> {
+                        LazyColumn(
+                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            item {
+                                ShimmerHeaderCard()
+                            }
+                            items(8) {
+                                ShimmerRateCard()
                             }
                         }
-
-                        val starredRates = state.officialRates.filter { rate ->
-                            state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite == true
-                        }.sortedWith(
-                            compareBy<com.gokcank.valutarate.domain.model.OfficialRate> { CurrencyUtils.getPopularityIndex(it.code) }
-                                .thenBy { it.code }
-                        )
-
-                        val nonStarredRates = state.officialRates.filter { rate ->
-                            state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite != true
-                        }.sortedWith(
-                            compareBy<com.gokcank.valutarate.domain.model.OfficialRate> { CurrencyUtils.getPopularityIndex(it.code) }
-                                .thenBy { it.code }
-                        )
-
-                        val sortedRates = starredRates + nonStarredRates
-
-                        items(sortedRates) { rate ->
-                            val isFav = state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite == true
-                            OfficialRateCard(
-                                rate = rate,
-                                isFavorite = isFav,
-                                onFavoriteToggle = { 
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    viewModel.toggleFavorite(rate.code, !isFav) 
-                                },
-                                onClick = { 
-                                    selectedRate = rate
-                                    viewModel.selectCurrencyForHistory(rate.code)
-                                }
+                    }
+                    is HomeUiState.Error -> {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = strings.errorLoading + ": " + state.message,
+                                color = MaterialTheme.colorScheme.error
                             )
+                        }
+                    }
+                    is HomeUiState.Success -> {
+                        LazyColumn(
+                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 0.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            item {
+                                GlassCard(modifier = Modifier.fillMaxWidth()) {
+                                    Row(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Default.Info, contentDescription = "Info", tint = MaterialTheme.colorScheme.onBackground)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            strings.tcmbRatesHeader
+                                                .replace("{date}", state.tcmbDate)
+                                                .replace("{time}", "15:30"),
+                                            color = MaterialTheme.colorScheme.onBackground
+                                        )
+                                    }
+                                }
+                            }
+
+                            val starredRates = state.officialRates.filter { rate ->
+                                state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite == true
+                            }.sortedWith(
+                                compareBy<com.gokcank.valutarate.domain.model.OfficialRate> { CurrencyUtils.getPopularityIndex(it.code) }
+                                    .thenBy { it.code }
+                            )
+
+                            val nonStarredRates = state.officialRates.filter { rate ->
+                                state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite != true
+                            }.sortedWith(
+                                compareBy<com.gokcank.valutarate.domain.model.OfficialRate> { CurrencyUtils.getPopularityIndex(it.code) }
+                                    .thenBy { it.code }
+                            )
+
+                            val sortedRates = starredRates + nonStarredRates
+
+                            items(sortedRates) { rate ->
+                                val isFav = state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite == true
+                                OfficialRateCard(
+                                    rate = rate,
+                                    isFavorite = isFav,
+                                    onFavoriteToggle = { 
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        viewModel.toggleFavorite(rate.code, !isFav) 
+                                    },
+                                    onClick = { 
+                                        selectedRate = rate
+                                        viewModel.selectCurrencyForHistory(rate.code)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
