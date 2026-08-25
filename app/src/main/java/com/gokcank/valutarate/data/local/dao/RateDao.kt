@@ -23,6 +23,9 @@ interface RateDao {
     @Query("SELECT * FROM historical_rates WHERE code = :code ORDER BY date ASC")
     suspend fun getHistoricalRatesListByCode(code: String): List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>
 
+    @Query("SELECT * FROM historical_rates ORDER BY timestamp ASC")
+    fun getAllHistoricalRates(): kotlinx.coroutines.flow.Flow<List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertHistoricalRates(rates: List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>)
 }

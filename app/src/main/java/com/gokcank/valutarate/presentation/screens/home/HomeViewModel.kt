@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,6 +28,15 @@ class HomeViewModel @Inject constructor(
 
     private val _selectedCurrencyHistory = MutableStateFlow<List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>?>(null)
     val selectedCurrencyHistory: StateFlow<List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>?> = _selectedCurrencyHistory.asStateFlow()
+
+    val allHistoricalRates: StateFlow<Map<String, List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>>> =
+        getRatesUseCase.getAllHistoricalRates()
+            .map { list -> list.groupBy { it.code } }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyMap()
+            )
 
     private var historyJob: kotlinx.coroutines.Job? = null
 

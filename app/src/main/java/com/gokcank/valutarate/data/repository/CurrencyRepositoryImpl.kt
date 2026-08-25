@@ -124,6 +124,10 @@ class CurrencyRepositoryImpl @Inject constructor(
         return rateDao.getHistoricalRatesByCode(code)
     }
 
+    override fun getAllHistoricalRates(): Flow<List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity>> {
+        return rateDao.getAllHistoricalRates()
+    }
+
     private fun OfficialRateEntity.toDomain() = OfficialRate(
         code = code,
         name = name,

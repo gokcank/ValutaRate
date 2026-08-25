@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import com.gokcank.valutarate.presentation.localization.LocalAppStrings
 import com.gokcank.valutarate.domain.util.CurrencyUtils
 import com.gokcank.valutarate.presentation.components.LineChart
+import com.gokcank.valutarate.presentation.components.Sparkline
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -41,6 +42,7 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val strings = LocalAppStrings.current
     val selectedHistory by viewModel.selectedCurrencyHistory.collectAsState()
+    val allHistoricalRates by viewModel.allHistoricalRates.collectAsState()
     var selectedRate by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf<OfficialRate?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val haptic = LocalHapticFeedback.current
@@ -131,9 +133,12 @@ fun HomeScreen(
 
                             items(sortedRates) { rate ->
                                 val isFav = state.favoriteCurrencies.find { it.code == rate.code }?.isFavorite == true
+                                val histRates = allHistoricalRates[rate.code] ?: emptyList()
                                 OfficialRateCard(
                                     rate = rate,
                                     isFavorite = isFav,
+                                    historicalRates = histRates,
+                                    showSparkline = true,
                                     onFavoriteToggle = { 
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         viewModel.toggleFavorite(rate.code, !isFav) 
@@ -252,6 +257,8 @@ fun HomeScreen(
 fun OfficialRateCard(
     rate: OfficialRate,
     isFavorite: Boolean,
+    historicalRates: List<com.gokcank.valutarate.data.local.entity.HistoricalRateEntity> = emptyList(),
+    showSparkline: Boolean = true,
     onFavoriteToggle: () -> Unit,
     onClick: () -> Unit
 ) {
@@ -263,37 +270,46 @@ fun OfficialRateCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
+            Column(modifier = Modifier.weight(1f).padding(end = 4.dp)) {
                 Text(
                     text = "${CurrencyUtils.getCurrencyFlag(rate.code)} ${rate.code} (${CurrencyUtils.getCurrencySymbol(rate.code)})",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     text = CurrencyUtils.getCurrencyName(rate.code, LocalAppStrings.current.languageCode),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                     modifier = Modifier.basicMarquee()
                 )
             }
+
+            // Optional Sparkline Mini Trend Chart
+            if (showSparkline && historicalRates.size >= 2) {
+                Sparkline(
+                    rates = historicalRates,
+                    modifier = Modifier.padding(horizontal = 6.dp)
+                )
+            }
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(horizontalAlignment = Alignment.End) {
                     val strings = LocalAppStrings.current
                     Text(
                         text = "${strings.buying}: ₺${rate.forexBuying ?: "-"}",
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = "${strings.selling}: ₺${rate.forexSelling ?: "-"}",
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(4.dp))
                 IconButton(onClick = onFavoriteToggle) {
                     Icon(
                         imageVector = if (isFavorite) androidx.compose.material.icons.Icons.Default.Star else androidx.compose.material.icons.Icons.Default.StarBorder,
