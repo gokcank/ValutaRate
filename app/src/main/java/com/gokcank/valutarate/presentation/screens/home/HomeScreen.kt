@@ -155,7 +155,7 @@ fun HomeScreen(
             }
         }
         
-        if (selectedRate != null && selectedHistory != null) {
+        if (selectedRate != null) {
             var selectedDays by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(7) }
 
             ModalBottomSheet(
@@ -238,7 +238,8 @@ fun HomeScreen(
 
                         Spacer(modifier = Modifier.height(16.dp))
                         
-                        val chartData = selectedHistory!!.takeLast(selectedDays)
+                        val historyList = selectedHistory ?: emptyList()
+                        val chartData = historyList.takeLast(selectedDays)
                         LineChart(
                             data = chartData,
                             modifier = Modifier
