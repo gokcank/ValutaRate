@@ -151,6 +151,8 @@ fun HomeScreen(
         }
         
         if (selectedRate != null && selectedHistory != null) {
+            var selectedDays by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(7) }
+
             ModalBottomSheet(
                 onDismissRequest = { 
                     selectedRate = null
@@ -193,22 +195,52 @@ fun HomeScreen(
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        Text(
-                            text = "Son 7 Günlük Trend (TCMB)",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // 7 Gün / 15 Gün Filter Tabs
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .background(MaterialTheme.colorScheme.onBackground.copy(alpha = 0.08f))
+                                .padding(4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            listOf(7, 15).forEach { days ->
+                                val isSelected = selectedDays == days
+                                val tabBackground = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+                                val tabTextColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(tabBackground)
+                                        .clickable { 
+                                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                            selectedDays = days 
+                                        }
+                                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = "$days Gün",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                        color = tabTextColor
+                                    )
+                                }
+                            }
+                        }
+
                         Spacer(modifier = Modifier.height(16.dp))
                         
+                        val chartData = selectedHistory!!.takeLast(selectedDays)
                         LineChart(
-                            data = selectedHistory!!,
+                            data = chartData,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(200.dp)
+                                .height(210.dp)
                         )
-                        Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
                     }
                 }
             }
