@@ -41,6 +41,7 @@ indicative rates, with offline cache, banner ads and TR/EN/DE/FR UI.
 - Tests are minimal (one unit test file, one instrumented test).
 
 ## Open items
+- Without signing values the release build comes out unsigned; add a debug-signing fallback.
 - UI micro-polish of the Converter and chart bottom sheet.
 - Backlog, only on request: crypto rates, home-screen widget, rate alerts, ad-free premium.
 
