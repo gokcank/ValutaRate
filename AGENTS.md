@@ -37,6 +37,7 @@ indicative rates, with offline cache, banner ads and TR/EN/DE/FR UI.
 - Commit messages: conventional commits (`feat(ui): ...`, `fix(chart): ...`).
 
 ## Status (as of 2026-11-07)
+- Project status: **maintenance** (set 2026-11-18; source of truth: the brain page).
 - v1.3.0 (`versionCode = 7`), published on Google Play per project notes. Last code change 2026-08-25.
 - Tests are minimal (one unit test file, one instrumented test).
 
